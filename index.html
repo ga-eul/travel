@@ -1514,6 +1514,23 @@ function importJSON(text){
 function clearQuery(){
   try { history.replaceState(null, '', location.pathname + location.hash); } catch(e){}
 }
+/* 여행이 하나도 없으면 같은 폴더의 seoul.json 을 자동으로 넣어 준다.
+   (홈 화면 아이콘으로 열거나 주소만 쳐도 일정이 들어 있게)
+   한 번만 시도하므로, 사용자가 일부러 지운 여행이 되살아나지는 않는다. */
+function seedIfEmpty(){
+  if (state.trips.length) return;
+  if (/[?&]load=/.test(location.search || '')) return;      // ?load= 가 처리한다
+  try { if (localStorage.getItem('tripPlanner.seeded')) return; } catch(e){}
+  if (typeof fetch !== 'function') return;
+  fetch('./seoul.json').then(function(res){
+    if (!res.ok) throw new Error('NO');
+    return res.text();
+  }).then(function(text){
+    try { localStorage.setItem('tripPlanner.seeded', '1'); } catch(e){}
+    if (!state.trips.length) importJSON(text);
+  })['catch'](function(){});
+}
+
 function autoLoad(){
   var m = (location.search || '').match(/[?&]load=([^&]+)/);
   if (!m) return;
@@ -1573,6 +1590,7 @@ load();
 if (!location.hash) location.replace('#/');
 render();
 autoLoad();
+seedIfEmpty();
 
 /* 오프라인 지원 — https(또는 localhost)에서만 등록된다 */
 if (navigator.serviceWorker && location.protocol !== 'file:'){

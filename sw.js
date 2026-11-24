@@ -3,13 +3,14 @@
    날씨 API 같은 외부 주소는 건드리지 않는다. */
 'use strict';
 
-var CACHE = 'trip-planner-v1';
+var CACHE = 'trip-planner-v2';
 var ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './seoul.json'
 ];
 
 self.addEventListener('install', function(e){
